@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.DarkMode
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.DeleteForever
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Fastfood
 import androidx.compose.material.icons.filled.Info
@@ -2479,7 +2480,8 @@ fun LainnyaTab(
     statusSync: StatusSync,
     syncTerakhir: Long,
     onSyncTap: () -> Unit,
-    onKeluar: () -> Unit
+    onKeluar: () -> Unit,
+    onReset: () -> Unit
 ) {
     val context = LocalContext.current
     val prefs = remember { context.getSharedPreferences("kasir_prefs", Context.MODE_PRIVATE) }
@@ -2669,6 +2671,25 @@ fun LainnyaTab(
                 modifier = Modifier.clickable { onKeluar() }
             )
         }
+        ListItem(
+            headlineContent = {
+                Text("Reset Semua Data", color = MaterialTheme.colorScheme.error)
+            },
+            supportingContent = {
+                Text("Hapus data di HP ini dan di awan, mulai dari nol")
+            },
+            leadingContent = {
+                Icon(
+                    Icons.Default.DeleteForever,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.error
+                )
+            },
+            trailingContent = {
+                Icon(Icons.Default.ChevronRight, contentDescription = null)
+            },
+            modifier = Modifier.clickable { onReset() }
+        )
         // Mode Gelap dan Tentang Kasir tetap baris di bawahnya.
         Column(
             modifier = Modifier.padding(top = 16.dp),

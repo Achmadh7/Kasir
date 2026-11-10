@@ -119,7 +119,43 @@ suspend fun tandaiSemuaKotor(dao: KasirDao) {
  * users/{uid}/: unit, snack, sesi, sesi_snack, jual_snack, reservasi,
  * pengeluaran - satu dokumen per baris, dikunci remoteId-nya.
  */
+/** Hasil reset semua data (meniru Apotek Lestari). */
+sealed class HasilReset {
+    object Berhasil : HasilReset()
+    object BelumMasuk : HasilReset()
+    object BelumDikonfigurasi : HasilReset()
+    data class Gagal(val pesan: String) : HasilReset()
+}
+
 class SyncManager(private val dao: KasirDao) {
+
+    /**
+     * Hapus SEMUA dokumen awan milik pengguna pada ketujuh koleksi
+     * (dipakai Reset Semua Data). Berhasil hanya bila seluruh pohon
+     * terhapus; pemanggil membatalkan penghapusan lokal pada Gagal
+     * supaya HP dan awan tidak berbeda nasib.
+     */
+    suspend fun hapusSemuaDataCloud(context: Context): HasilReset {
+        if (!FirebaseKit.siap(context)) return HasilReset.BelumDikonfigurasi
+        val uid = FirebaseKit.auth()?.currentUser?.uid ?: return HasilReset.BelumMasuk
+        val fs = FirebaseKit.firestore() ?: return HasilReset.BelumDikonfigurasi
+        return try {
+            val akar = fs.collection("users").document(uid)
+            for (nama in listOf(
+                "unit", "snack", "sesi", "sesi_snack", "jual_snack", "reservasi", "pengeluaran"
+            )) {
+                val docs = akar.collection(nama).get().await().documents
+                for (potongan in docs.chunked(400)) {
+                    val batch = fs.batch()
+                    potongan.forEach { batch.delete(it.reference) }
+                    batch.commit().await()
+                }
+            }
+            HasilReset.Berhasil
+        } catch (e: Exception) {
+            HasilReset.Gagal(e.message ?: "tidak diketahui")
+        }
+    }
 
     suspend fun sinkronSekarang(context: Context): HasilSync {
         if (!FirebaseKit.siap(context)) return HasilSync.BelumDikonfigurasi

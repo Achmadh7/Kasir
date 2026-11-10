@@ -132,8 +132,10 @@ import id.kasir.app.data.SeedData
 import id.kasir.app.data.SessionEntity
 import id.kasir.app.data.SessionSnackEntity
 import id.kasir.app.data.UnitEntity
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import androidx.compose.foundation.Canvas
 import androidx.compose.material.icons.filled.CloudDone
 import androidx.compose.material.icons.filled.CloudOff
@@ -146,6 +148,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.room.InvalidationTracker
 import id.kasir.app.data.FirebaseKit
+import id.kasir.app.data.HasilReset
 import id.kasir.app.data.HasilSync
 import id.kasir.app.data.SyncManager
 import id.kasir.app.data.jadwalkanSyncBerkala
@@ -265,6 +268,8 @@ private fun KasirApp(
     var sibukOnline by remember { mutableStateOf(false) }
     var pesanOnline by remember { mutableStateOf<String?>(null) }
     var tampilKonfirmasiKeluar by remember { mutableStateOf(false) }
+    var tampilKonfirmasiReset by remember { mutableStateOf(false) }
+    var sibukReset by remember { mutableStateOf(false) }
     var tampilInfoOnline by remember { mutableStateOf(false) }
     val perluLogin = onlineSiap && emailOnline == null && !lewatiLogin
 
@@ -367,6 +372,31 @@ private fun KasirApp(
         }
     }
 
+    fun aksiResetSemua() {
+        if (sibukReset) return
+        sibukReset = true
+        scope.launch {
+            val hasil = SyncManager(dao).hapusSemuaDataCloud(context)
+            if (hasil is HasilReset.Gagal) {
+                sibukReset = false
+                tampilKonfirmasiReset = false
+                notify("Reset gagal: " + hasil.pesan + ". Data di HP ini tidak berubah.")
+                return@launch
+            }
+            withContext(Dispatchers.IO) {
+                dao.allSessionsOnce().forEach { SessionAlarm.cancel(context, it.id) }
+                dao.allReservationsOnce().forEach { SessionAlarm.cancelReservation(context, it.id) }
+                DatabaseProvider.get(context).clearAllTables()
+            }
+            prefs.edit().remove("online_sync_terakhir").apply()
+            syncTerakhir = 0
+            SeedData.ensure(dao)
+            sibukReset = false
+            tampilKonfirmasiReset = false
+            notify("Semua data sudah dihapus. Aplikasi kembali ke keadaan awal.")
+        }
+    }
+
     LaunchedEffect(Unit) { SeedData.ensure(dao) }
 
     KasirTheme(darkTheme = dark) {
@@ -389,6 +419,40 @@ private fun KasirApp(
                 },
                 dismissButton = {
                     TextButton(onClick = { tampilKonfirmasiKeluar = false }) { Text("Batal") }
+                }
+            )
+        }
+        if (tampilKonfirmasiReset) {
+            AlertDialog(
+                onDismissRequest = { if (!sibukReset) tampilKonfirmasiReset = false },
+                title = { Text("Reset semua data?") },
+                text = {
+                    Text(
+                        if (emailOnline != null) {
+                            "Semua data di HP ini DAN salinan di awan untuk akun " + emailOnline +
+                                " akan dihapus permanen. Aplikasi kembali ke keadaan awal " +
+                                "(unit & makanan bawaan). Akun tetap masuk."
+                        } else {
+                            "Semua data di HP ini akan dihapus permanen dan aplikasi kembali " +
+                                "ke keadaan awal (unit & makanan bawaan). " +
+                                "Tindakan ini tidak bisa dibatalkan."
+                        }
+                    )
+                },
+                confirmButton = {
+                    TextButton(
+                        onClick = { aksiResetSemua() },
+                        enabled = !sibukReset,
+                        colors = ButtonDefaults.textButtonColors(
+                            contentColor = MaterialTheme.colorScheme.error
+                        )
+                    ) { Text(if (sibukReset) "Menghapus…" else "Ya") }
+                },
+                dismissButton = {
+                    TextButton(
+                        onClick = { tampilKonfirmasiReset = false },
+                        enabled = !sibukReset
+                    ) { Text("Tidak") }
                 }
             )
         }
@@ -557,7 +621,8 @@ private fun KasirApp(
                                 statusSync = statusSync,
                                 syncTerakhir = syncTerakhir,
                                 onSyncTap = { aksiSinkronTap() },
-                                onKeluar = { tampilKonfirmasiKeluar = true }
+                                onKeluar = { tampilKonfirmasiKeluar = true },
+                                onReset = { tampilKonfirmasiReset = true }
                             )
                         }
                     }

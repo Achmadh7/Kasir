@@ -77,3 +77,9 @@ Under `users/{uid}/`, one document per row, keyed by `remoteId`:
   after important days. Excel/CSV reports are not backups.
 - Sync is a mirror, not a sharing feature: there is no multi-user or
   multi-cashier mode.
+- "Reset Semua Data" (Lainnya, red row, Ya/Tidak confirmation) wipes
+  the signed-in account's cloud tree FIRST - if that fails, nothing
+  local is touched - then clears the local database, cancels session
+  and reservation alarms, and re-seeds the factory defaults (6 units,
+  6 snacks), which then sync up as the new starting state. The account
+  stays signed in.
