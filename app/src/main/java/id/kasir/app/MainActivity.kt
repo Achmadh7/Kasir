@@ -153,6 +153,9 @@ import id.kasir.app.data.HasilSync
 import id.kasir.app.data.SyncManager
 import id.kasir.app.data.jadwalkanSyncBerkala
 import id.kasir.app.data.tandaiSemuaKotor
+import id.kasir.app.data.baruSync
+import id.kasir.app.data.nowSync
+import id.kasir.app.data.sentuhSync
 import kotlinx.coroutines.Job
 
 class MainActivity : ComponentActivity() {
@@ -208,10 +211,9 @@ private fun expressiveTransform(motionScheme: MotionScheme, direction: Int): Con
             })
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class, ExperimentalFoundationApi::class)
-@Composable
 enum class StatusSync { NONAKTIF, BELUM_MASUK, PROSES, BERHASIL, GAGAL }
 
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class, ExperimentalFoundationApi::class)
 @Composable
 private fun KasirApp(
     openSignal: Long? = null,
@@ -724,6 +726,7 @@ private fun KasirApp(
         }
     }
 }
+}
 
 // Dock melayang menggantikan NavigationBar: kapsul surfaceContainerHigh
 // dengan bayangan (NB1 - Pill Ramping). Hanya tab aktif yang menampilkan
@@ -835,7 +838,6 @@ private fun FloatingDock(
                     }
                 }
             }
-        }
         }
     }
 }

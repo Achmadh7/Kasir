@@ -105,6 +105,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import id.kasir.app.data.KasirDao
+import id.kasir.app.data.baruSync
+import id.kasir.app.data.nowSync
+import id.kasir.app.data.sentuhSync
 import id.kasir.app.data.SessionEntity
 import id.kasir.app.data.SessionSnackEntity
 import id.kasir.app.data.SnackEntity
