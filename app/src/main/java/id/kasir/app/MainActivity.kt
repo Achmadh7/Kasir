@@ -7,6 +7,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -271,6 +274,16 @@ private fun KasirApp(
     // (lewat gerbang), bukan sesi lama yang tersimpan saat app
     // dibuka - membedakan notifikasi sinkron saat buka app.
     var baruSajaMasuk by remember { mutableStateOf(false) }
+    // Lencana "Tersinkron" S12 di atas-tengah (warna pil navy S4):
+    // pengganti snackbar untuk kabar sinkron BERHASIL. Galat tetap
+    // lewat snackbar supaya pesannya terbaca utuh.
+    var tampilLencanaSync by remember { mutableStateOf(false) }
+    LaunchedEffect(tampilLencanaSync) {
+        if (tampilLencanaSync) {
+            delay(2600)
+            tampilLencanaSync = false
+        }
+    }
     var pesanOnline by remember { mutableStateOf<String?>(null) }
     var tampilKonfirmasiKeluar by remember { mutableStateOf(false) }
     var tampilKonfirmasiReset by remember { mutableStateOf(false) }
@@ -278,9 +291,10 @@ private fun KasirApp(
     var tampilInfoOnline by remember { mutableStateOf(false) }
     val perluLogin = onlineSiap && emailOnline == null && !lewatiLogin
 
-    // senyap = sinkron latar (otomatis): tanpa snackbar. Status tetap
-    // terlihat dari ikon awan di header. Sinkron manual & saat masuk
-    // tetap memberi kabar lewat snackbar.
+    // senyap = sinkron latar (otomatis): tanpa kabar apa pun. Status
+    // tetap terlihat dari ikon awan di header. Sinkron manual & saat
+    // masuk yang BERHASIL berkabar lewat lencana "Tersinkron" di
+    // atas-tengah; yang GAGAL tetap lewat snackbar.
     fun jalankanSync(senyap: Boolean = false) {
         if (!onlineSiap || emailOnline == null || statusSync == StatusSync.PROSES) return
         statusSync = StatusSync.PROSES
@@ -290,7 +304,7 @@ private fun KasirApp(
                     statusSync = StatusSync.BERHASIL
                     syncTerakhir = System.currentTimeMillis()
                     prefs.edit().putLong("online_sync_terakhir", syncTerakhir).apply()
-                    if (!senyap) notify("Sinkronisasi selesai")
+                    if (!senyap) tampilLencanaSync = true
                 }
                 is HasilSync.Gagal -> {
                     statusSync = StatusSync.GAGAL
@@ -644,6 +658,42 @@ private fun KasirApp(
                         foodBadge = lowFoodCount,
                         modifier = Modifier.align(Alignment.BottomCenter)
                     )
+                    // Lencana sinkron S12: pil navy #1B3A5C (warna S4)
+                    // melayang di atas-tengah, awan CloudDone cyan +
+                    // teks "Tersinkron". Muncul 2,6 detik lalu hilang.
+                    AnimatedVisibility(
+                        visible = tampilLencanaSync,
+                        enter = slideInVertically(tween(300)) { -it } + fadeIn(tween(300)),
+                        exit = slideOutVertically(tween(250)) { -it } + fadeOut(tween(250)),
+                        modifier = Modifier
+                            .align(Alignment.TopCenter)
+                            .padding(top = 10.dp)
+                    ) {
+                        Surface(
+                            shape = RoundedCornerShape(50),
+                            color = Color(0xFF1B3A5C),
+                            shadowElevation = 6.dp
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 16.dp, vertical = 9.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                Icon(
+                                    Icons.Default.CloudDone,
+                                    contentDescription = null,
+                                    tint = Color(0xFF40C4FF),
+                                    modifier = Modifier.size(18.dp)
+                                )
+                                Spacer(Modifier.width(8.dp))
+                                Text(
+                                    "Tersinkron",
+                                    color = Color.White,
+                                    style = MaterialTheme.typography.labelLarge,
+                                    fontWeight = FontWeight.Bold
+                                )
+                            }
+                        }
+                    }
                 }
             }
             }
