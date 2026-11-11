@@ -2592,19 +2592,7 @@ fun LainnyaTab(
                     .background(Color(0xFF1B3A5C), CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(76.dp)
-                        .background(Color.White, CircleShape),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        Icons.Default.SportsEsports,
-                        contentDescription = null,
-                        tint = Color(0xFF16324F),
-                        modifier = Modifier.size(40.dp)
-                    )
-                }
+                LogoKasirBaru(Modifier.size(76.dp))
             }
             Text(
                 "Kasir",

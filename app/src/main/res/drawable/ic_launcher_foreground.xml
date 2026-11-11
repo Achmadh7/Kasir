@@ -1,47 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Gamepad putih (logo varian 1A): grip, D-pad, dua stik analog, 4 tombol intan. -->
+<!-- Logo R5 "Layar Putar" (dipilih Achmad 2026-11-11, dibuat modern):
+     bingkai TV garis putih, segitiga putar biru baja muda, penyangga
+     dan alas - di atas gradasi navy ic_launcher_background. Mengganti
+     gamepad putih detail varian 1A. -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
     android:height="108dp"
     android:viewportWidth="108"
     android:viewportHeight="108">
-    <!-- bayangan lembut -->
+    <!-- bingkai TV -->
     <path
-        android:fillColor="#0A1626"
-        android:fillAlpha="0.35"
-        android:pathData="M25,75.5 a29,4 0 1,0 58,0 a29,4 0 1,0 -58,0" />
-    <!-- grip kiri + kanan -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M19,61 a9,11 0 1,0 18,0 a9,11 0 1,0 -18,0 M71,61 a9,11 0 1,0 18,0 a9,11 0 1,0 -18,0" />
-    <!-- badan -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M35,39 h38 a13,13 0 0 1 13,13 v2 a13,13 0 0 1 -13,13 h-38 a13,13 0 0 1 -13,-13 v-2 a13,13 0 0 1 13,-13 z" />
-    <!-- D-pad -->
-    <path
-        android:fillColor="#2E5A88"
-        android:pathData="M30.6,42.5 h4.8 v15 h-4.8 z M25.5,47.6 h15 v4.8 h-15 z" />
-    <!-- stik analog (cincin hijau) -->
-    <path
-        android:fillColor="#2E5A88"
-        android:pathData="M40.1,58.5 a5.4,5.4 0 1,0 10.8,0 a5.4,5.4 0 1,0 -10.8,0 M57.1,58.5 a5.4,5.4 0 1,0 10.8,0 a5.4,5.4 0 1,0 -10.8,0" />
-    <!-- inti stik (putih) -->
-    <path
-        android:fillColor="#FFFFFF"
-        android:pathData="M43,58.5 a2.5,2.5 0 1,0 5,0 a2.5,2.5 0 1,0 -5,0 M60,58.5 a2.5,2.5 0 1,0 5,0 a2.5,2.5 0 1,0 -5,0" />
-    <!-- 4 tombol pola intan -->
+        android:fillColor="#00000000"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="5"
+        android:pathData="M37,36 h34 a8,8 0 0 1 8,8 v15 a8,8 0 0 1 -8,8 h-34 a8,8 0 0 1 -8,-8 v-15 a8,8 0 0 1 8,-8 z" />
+    <!-- segitiga putar -->
     <path
         android:fillColor="#6FA8DC"
-        android:pathData="M72.4,43.4 a3.1,3.1 0 1,0 6.2,0 a3.1,3.1 0 1,0 -6.2,0" />
+        android:pathData="M48,43.5 L62,51.5 L48,59.5 Z" />
+    <!-- leher penyangga -->
     <path
-        android:fillColor="#FFB020"
-        android:pathData="M79,50 a3.1,3.1 0 1,0 6.2,0 a3.1,3.1 0 1,0 -6.2,0" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M52.5,67 h3 a1.5,1.5 0 0 1 1.5,1.5 v1.5 a1.5,1.5 0 0 1 -1.5,1.5 h-3 a1.5,1.5 0 0 1 -1.5,-1.5 v-1.5 a1.5,1.5 0 0 1 1.5,-1.5 z" />
+    <!-- alas -->
     <path
-        android:fillColor="#6FA8DC"
-        android:pathData="M72.4,56.6 a3.1,3.1 0 1,0 6.2,0 a3.1,3.1 0 1,0 -6.2,0" />
-    <path
-        android:fillColor="#2E5A88"
-        android:pathData="M65.8,50 a3.1,3.1 0 1,0 6.2,0 a3.1,3.1 0 1,0 -6.2,0" />
+        android:fillColor="#FFFFFF"
+        android:pathData="M43,71.5 h22 a2,2 0 0 1 2,2 a2,2 0 0 1 -2,2 h-22 a2,2 0 0 1 -2,-2 a2,2 0 0 1 2,-2 z" />
 </vector>
-

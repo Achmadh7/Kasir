@@ -112,6 +112,8 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
@@ -145,6 +147,7 @@ import androidx.compose.material.icons.filled.CloudSync
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -2616,6 +2619,53 @@ private fun LogoGoogle(modifier: Modifier = Modifier) {
  * pemisah, formulir email, dan Lewati untuk mode tamu (per sesi).
  * Hanya tampil bila Firebase terkonfigurasi dan belum ada yang masuk.
  */
+/** Logo aplikasi R5 "Layar Putar" untuk di dalam aplikasi: ubin
+ *  gradasi navy dengan bingkai TV putih, segitiga putar biru baja
+ *  muda, leher penyangga dan alas - geometri yang sama dengan
+ *  ic_launcher_foreground (grid 108). Dipakai gerbang login dan
+ *  identitas Lainnya, menggantikan ikon gamepad generik. */
+@Composable
+fun LogoKasirBaru(modifier: Modifier = Modifier) {
+    Canvas(
+        modifier
+            .clip(RoundedCornerShape(16.dp))
+            .background(
+                Brush.linearGradient(
+                    listOf(Color(0xFF0A1626), Color(0xFF2E5A88))
+                )
+            )
+    ) {
+        fun fx(v: Float) = size.width * v / 108f
+        fun fy(v: Float) = size.height * v / 108f
+        drawRoundRect(
+            color = Color.White,
+            topLeft = Offset(fx(29f), fy(36f)),
+            size = Size(fx(50f), fy(31f)),
+            cornerRadius = CornerRadius(fx(8f), fy(8f)),
+            style = Stroke(width = fx(5f))
+        )
+        val segitiga = Path().apply {
+            moveTo(fx(48f), fy(43.5f))
+            lineTo(fx(62f), fy(51.5f))
+            lineTo(fx(48f), fy(59.5f))
+            close()
+        }
+        drawPath(segitiga, color = Color(0xFF6FA8DC))
+        drawRoundRect(
+            color = Color.White,
+            topLeft = Offset(fx(51f), fy(67f)),
+            size = Size(fx(6f), fy(4.5f)),
+            cornerRadius = CornerRadius(fx(1.5f), fy(1.5f))
+        )
+        drawRoundRect(
+            color = Color.White,
+            topLeft = Offset(fx(41f), fy(71.5f)),
+            size = Size(fx(26f), fy(4f)),
+            cornerRadius = CornerRadius(fx(2f), fy(2f))
+        )
+    }
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun LayarLogin(
@@ -2651,19 +2701,7 @@ private fun LayarLogin(
                 modifier = Modifier.padding(20.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Box(
-                    modifier = Modifier
-                        .size(64.dp)
-                        .background(Color.White, RoundedCornerShape(16.dp)),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Icon(
-                        Icons.Default.SportsEsports,
-                        contentDescription = null,
-                        tint = Color(0xFF16324F),
-                        modifier = Modifier.size(36.dp)
-                    )
-                }
+                LogoKasirBaru(Modifier.size(64.dp))
                 Column(modifier = Modifier.padding(start = 16.dp)) {
                     Text(
                         "Kasir",
