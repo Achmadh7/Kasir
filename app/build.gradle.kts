@@ -85,6 +85,18 @@ android {
     }
 }
 
+// Nama berkas APK release yang rapi untuk dibagikan/diarsipkan;
+// APK debug tetap memakai nama bawaan.
+androidComponents {
+    onVariants { variant ->
+        if (variant.buildType == "release") {
+            variant.outputs.forEach { output ->
+                output.outputFileName.set("Kasir-Playstation-Release.apk")
+            }
+        }
+    }
+}
+
 dependencies {
     implementation("androidx.core:core-ktx:1.17.0")
     // Applies the shipped baseline profile at install time on API < 31 and
@@ -95,8 +107,8 @@ dependencies {
 
     // Database lokal (Room) — data rental tersimpan di HP, tanpa server
     implementation("androidx.room:room-runtime:2.7.2")
-    implementation("androidx.room:room-ktx:2.7.2")
-    ksp("androidx.room:room-compiler:2.7.2")
+    implementation("androidx.room:room-ktx:2.8.5")
+    ksp("androidx.room:room-compiler:2.8.5")
 
     val composeBom = platform("androidx.compose:compose-bom:2026.09.00")
     implementation(composeBom)
