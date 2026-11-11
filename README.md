@@ -59,6 +59,3 @@ On first launch the app starts empty: units and snack menu items are added by ha
 - `.github/workflows/build.yml` — the manual build workflow (workflow_dispatch): keystore restore, unit tests, then the APK builds.
 - `docs/ARSITEKTUR.md` — architecture notes: data model, billing rules, payment & stock flow, notifications, signing, and CI.
 
-## License
-
-All Rights Reserved — see the [LICENSE](LICENSE) file.
