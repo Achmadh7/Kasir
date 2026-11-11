@@ -513,6 +513,9 @@ private fun KasirApp(
         val motionScheme = MaterialTheme.motionScheme
         AnimatedContent(
             targetState = showUnitManage,
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background),
             transitionSpec = {
                 expressiveTransform(motionScheme, if (targetState) 1 else -1)
             },
