@@ -2567,6 +2567,13 @@ private fun LayarLogin(
     onMasukGoogle: () -> Unit,
     onLewati: () -> Unit
 ) {
+    // Latar disamakan dengan layar utama: Scaffold memakai
+    // colorScheme.background, gerbang ini sebelumnya jatuh ke
+    // latar jendela aktivitas sehingga warnanya berbeda.
+    Surface(
+        color = MaterialTheme.colorScheme.background,
+        modifier = Modifier.fillMaxSize()
+    ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -2690,5 +2697,6 @@ private fun LayarLogin(
                 )
             }
         }
+    }
     }
 }
