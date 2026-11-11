@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -93,7 +94,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.luminance
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
@@ -1532,6 +1535,41 @@ private fun DeltaChip(diff: Long, prevLabel: String, upColor: Color) {
     }
 }
 
+
+// N1 Kaca Baja: latar aurora redup di belakang kartu-kartu kaca
+// Laporan - tiga lingkaran gradasi radial baja/cyan/ungu di atas
+// warna latar tema. Murni dekorasi; tidak menangkap sentuhan.
+@Composable
+private fun LaporanAurora() {
+    val scheme = MaterialTheme.colorScheme
+    val dark = scheme.background.luminance() < 0.05f
+    val a1 = if (dark) 0.32f else 0.22f
+    val a2 = if (dark) 0.26f else 0.18f
+    Canvas(modifier = Modifier.fillMaxSize()) {
+        drawCircle(
+            brush = Brush.radialGradient(
+                listOf(Color(0xFF2E5A88).copy(alpha = a1), Color.Transparent)
+            ),
+            radius = size.width * 0.78f,
+            center = Offset(size.width * 0.06f, size.height * 0.02f)
+        )
+        drawCircle(
+            brush = Brush.radialGradient(
+                listOf(Color(0xFF0E5A78).copy(alpha = a1), Color.Transparent)
+            ),
+            radius = size.width * 0.62f,
+            center = Offset(size.width * 0.97f, size.height * 0.36f)
+        )
+        drawCircle(
+            brush = Brush.radialGradient(
+                listOf(Color(0xFF33255E).copy(alpha = a2), Color.Transparent)
+            ),
+            radius = size.width * 0.8f,
+            center = Offset(size.width * 0.88f, size.height * 1.04f)
+        )
+    }
+}
+
 // ---------- Tab Laporan ----------
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1630,7 +1668,9 @@ fun LaporanTab(dao: KasirDao, notify: (String) -> Unit) {
         .sumOf { it.amount }
     val netTotal = grandTotal - expenseTotal
 
-    Column(modifier = Modifier.fillMaxSize()) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        LaporanAurora()
+        Column(modifier = Modifier.fillMaxSize()) {
         // PS2: pemilih periode menjadi kapsul pill melayang seperti
         // dock NB1 - pill navy untuk periode aktif, label redup untuk
         // yang tidak aktif (menggantikan segmented button bawaan).
@@ -1639,7 +1679,10 @@ fun LaporanTab(dao: KasirDao, notify: (String) -> Unit) {
                 .fillMaxWidth()
                 .padding(16.dp),
             shape = RoundedCornerShape(24.dp),
-            color = MaterialTheme.colorScheme.surfaceContainerHigh
+            color = MaterialTheme.colorScheme.surfaceContainer,
+            border = BorderStroke(
+                1.dp, MaterialTheme.colorScheme.outlineVariant
+            )
         ) {
             Row(modifier = Modifier.padding(4.dp)) {
                 val periodLabels =
@@ -1690,9 +1733,12 @@ fun LaporanTab(dao: KasirDao, notify: (String) -> Unit) {
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(horizontal = 16.dp),
+            shape = RoundedCornerShape(22.dp),
+            border = BorderStroke(
+                1.dp, MaterialTheme.colorScheme.outlineVariant
+            ),
             colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
             )
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
@@ -1721,8 +1767,7 @@ fun LaporanTab(dao: KasirDao, notify: (String) -> Unit) {
                 )
                 HorizontalDivider(
                     modifier = Modifier.padding(top = 12.dp),
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                        .copy(alpha = 0.25f)
+                    color = MaterialTheme.colorScheme.outlineVariant
                 )
                 LaporanCalcRow(
                     label = "Playstation",
@@ -1739,8 +1784,7 @@ fun LaporanTab(dao: KasirDao, notify: (String) -> Unit) {
                 )
                 HorizontalDivider(
                     modifier = Modifier.padding(top = 4.dp),
-                    color = MaterialTheme.colorScheme.onPrimaryContainer
-                        .copy(alpha = 0.25f)
+                    color = MaterialTheme.colorScheme.outlineVariant
                 )
                 Row(
                     modifier = Modifier
@@ -1778,9 +1822,14 @@ fun LaporanTab(dao: KasirDao, notify: (String) -> Unit) {
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight(),
+                        shape = RoundedCornerShape(20.dp),
+                        border = BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.outlineVariant
+                        ),
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme
-                                .colorScheme.surfaceContainerHigh
+                                .colorScheme.surfaceContainer
                         )
                     ) {
                         Column(
@@ -1875,9 +1924,14 @@ fun LaporanTab(dao: KasirDao, notify: (String) -> Unit) {
                         modifier = Modifier
                             .weight(1f)
                             .fillMaxHeight(),
+                        shape = RoundedCornerShape(20.dp),
+                        border = BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.outlineVariant
+                        ),
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme
-                                .colorScheme.surfaceContainerHigh
+                                .colorScheme.surfaceContainer
                         )
                     ) {
                         Column(
@@ -1958,9 +2012,13 @@ fun LaporanTab(dao: KasirDao, notify: (String) -> Unit) {
             }
             item {
                 Card(
+                    shape = RoundedCornerShape(22.dp),
+                    border = BorderStroke(
+                        1.dp, MaterialTheme.colorScheme.outlineVariant
+                    ),
                     colors = CardDefaults.cardColors(
                         containerColor = MaterialTheme
-                            .colorScheme.surfaceContainerHigh
+                            .colorScheme.surfaceContainer
                     ),
                     modifier = Modifier.fillMaxWidth()
                 ) {
@@ -2115,9 +2173,14 @@ fun LaporanTab(dao: KasirDao, notify: (String) -> Unit) {
                     // PE6: semua catatan periode ini dalam satu kartu
                     // kompak; ketuk baris untuk mengubah.
                     Card(
+                        shape = RoundedCornerShape(20.dp),
+                        border = BorderStroke(
+                            1.dp,
+                            MaterialTheme.colorScheme.outlineVariant
+                        ),
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme
-                                .colorScheme.surfaceContainerHigh
+                                .colorScheme.surfaceContainer
                         ),
                         modifier = Modifier.fillMaxWidth()
                     ) {
@@ -2194,8 +2257,12 @@ fun LaporanTab(dao: KasirDao, notify: (String) -> Unit) {
             }
             items(periodSessions, key = { it.id }) { session ->
                 Card(
+                    shape = RoundedCornerShape(20.dp),
+                    border = BorderStroke(
+                        1.dp, MaterialTheme.colorScheme.outlineVariant
+                    ),
                     colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.surfaceContainerHigh
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer
                     ),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -2233,6 +2300,7 @@ fun LaporanTab(dao: KasirDao, notify: (String) -> Unit) {
                 }
             }
         }
+    }
     }
     receiptSession?.let { s ->
         ReceiptDialog(dao = dao, session = s, onDismiss = { receiptSession = null })
@@ -2465,7 +2533,7 @@ private fun LaporanCalcRow(
             style = MaterialTheme.typography.bodyLarge,
             fontWeight = FontWeight.SemiBold,
             color = amountColor
-                ?: MaterialTheme.colorScheme.onPrimaryContainer
+                ?: MaterialTheme.colorScheme.onSurface
         )
     }
 }
