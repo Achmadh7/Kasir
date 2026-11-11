@@ -85,18 +85,6 @@ android {
     }
 }
 
-// Nama berkas APK release yang rapi untuk dibagikan/diarsipkan;
-// APK debug tetap memakai nama bawaan.
-androidComponents {
-    onVariants { variant ->
-        if (variant.buildType == "release") {
-            variant.outputs.forEach { output ->
-                output.outputFileName.set("Kasir-Playstation-Release.apk")
-            }
-        }
-    }
-}
-
 dependencies {
     implementation("androidx.core:core-ktx:1.17.0")
     // Applies the shipped baseline profile at install time on API < 31 and
