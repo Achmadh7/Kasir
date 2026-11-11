@@ -46,6 +46,7 @@ import androidx.compose.material.icons.filled.Inventory2
 import androidx.compose.material.icons.filled.Payments
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material.icons.filled.SettingsBackupRestore
+import androidx.compose.material.icons.filled.SportsEsports
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.filled.Tv
@@ -66,6 +67,7 @@ import androidx.compose.material3.DatePickerDialog
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
@@ -2540,55 +2542,77 @@ fun LainnyaTab(
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        // LN3: kartu toko ramping - satu baris, tombol "Ubah" di kanan;
-        // versi aplikasi tetap tampil di baris Tentang di bawah.
-        Card(
-            colors = CardDefaults.cardColors(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-            ),
-            modifier = Modifier.fillMaxWidth()
+        // L2: identitas profil di tengah - cakram navy tetap dengan
+        // lingkaran putih berikon gamepad, nama aplikasi, baris nama
+        // toko dengan tombol ubah kecil, lalu pil versi.
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                modifier = Modifier.padding(12.dp),
-                verticalAlignment = Alignment.CenterVertically
+            Box(
+                modifier = Modifier
+                    .size(104.dp)
+                    .background(Color(0xFF1B3A5C), CircleShape),
+                contentAlignment = Alignment.Center
             ) {
                 Box(
                     modifier = Modifier
-                        .size(48.dp)
-                        .background(
-                            MaterialTheme.colorScheme.primary,
-                            RoundedCornerShape(12.dp)
-                        ),
+                        .size(76.dp)
+                        .background(Color.White, CircleShape),
                     contentAlignment = Alignment.Center
                 ) {
                     Icon(
-                        Icons.Default.Tv,
+                        Icons.Default.SportsEsports,
                         contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(26.dp)
+                        tint = Color(0xFF16324F),
+                        modifier = Modifier.size(40.dp)
                     )
                 }
-                Column(modifier = Modifier.padding(start = 12.dp)) {
-                    Text(
-                        storeName,
-                        style = MaterialTheme.typography.titleMedium,
-                        fontWeight = FontWeight.Bold
-                    )
-                    Text(
-                        "Kasir Rental PlayStation",
-                        style = MaterialTheme.typography.bodySmall
+            }
+            Text(
+                "Kasir",
+                style = MaterialTheme.typography.headlineSmall,
+                fontWeight = FontWeight.ExtraBold,
+                modifier = Modifier.padding(top = 12.dp)
+            )
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(top = 2.dp)
+            ) {
+                Text(
+                    storeName + " - Kasir Rental PlayStation",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                )
+                IconButton(
+                    onClick = {
+                        storeNameText = storeName
+                        showStoreDialog = true
+                    },
+                    modifier = Modifier.size(32.dp)
+                ) {
+                    Icon(
+                        Icons.Default.Edit,
+                        contentDescription = "Ubah nama toko",
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(16.dp)
                     )
                 }
-                Spacer(modifier = Modifier.weight(1f))
-                TextButton(onClick = {
-                    storeNameText = storeName
-                    showStoreDialog = true
-                }) { Text("Ubah") }
+            }
+            Surface(
+                color = MaterialTheme.colorScheme.surfaceContainer,
+                shape = RoundedCornerShape(50),
+                modifier = Modifier.padding(top = 8.dp)
+            ) {
+                Text(
+                    "Versi 1.0.0",
+                    style = MaterialTheme.typography.labelLarge,
+                    color = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
+                )
             }
         }
-        // LN3: empat aksi utama jadi ubin grid 2x2 agar mudah diketuk;
-        // ---- Mode Online: kartu status + baris sinkronisasi ----
+        // ---- Mode Online: kartu status (isi sama seperti sebelumnya) ----
         val subStatusOnline = when {
             emailOnline != null ->
                 emailOnline + if (syncTerakhir > 0) {
@@ -2605,7 +2629,7 @@ fun LainnyaTab(
             ),
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 12.dp)
+                .padding(top = 16.dp)
         ) {
             Row(
                 modifier = Modifier.padding(12.dp),
@@ -2631,128 +2655,171 @@ fun LainnyaTab(
                 }
             }
         }
-        ListItem(
-            headlineContent = { Text("Sinkronisasi") },
-            supportingContent = {
-                Text(
-                    when (statusSync) {
-                        StatusSync.PROSES -> "Sedang menyinkronkan..."
-                        StatusSync.BERHASIL -> "Tersinkron"
-                        StatusSync.GAGAL -> "Gagal - ketuk untuk mencoba lagi"
-                        StatusSync.BELUM_MASUK -> "Masuk untuk menyalakan"
-                        StatusSync.NONAKTIF -> "Belum dikonfigurasi"
-                    }
-                )
-            },
-            leadingContent = { Icon(Icons.Default.CloudSync, contentDescription = null) },
-            trailingContent = {
-                if (statusSync == StatusSync.PROSES) {
-                    CircularProgressIndicator(
-                        strokeWidth = 2.dp,
-                        modifier = Modifier.size(20.dp)
-                    )
-                } else {
-                    Icon(Icons.Default.ChevronRight, contentDescription = null)
-                }
-            },
-            modifier = Modifier.clickable { onSyncTap() }
-        )
-        if (emailOnline != null) {
-            ListItem(
-                headlineContent = { Text("Keluar Akun") },
-                supportingContent = { Text(emailOnline) },
-                leadingContent = {
-                    Icon(
-                        Icons.Default.Logout,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.error
-                    )
-                },
-                trailingContent = {
-                    Icon(Icons.Default.ChevronRight, contentDescription = null)
-                },
-                modifier = Modifier.clickable { onKeluar() }
-            )
-        }
-        ListItem(
-            headlineContent = {
-                Text("Reset Semua Data", color = MaterialTheme.colorScheme.error)
-            },
-            supportingContent = {
-                Text("Hapus data di HP ini dan di awan, mulai dari nol")
-            },
-            leadingContent = {
-                Icon(
-                    Icons.Default.DeleteForever,
-                    contentDescription = null,
-                    tint = MaterialTheme.colorScheme.error
-                )
-            },
-            trailingContent = {
-                Icon(Icons.Default.ChevronRight, contentDescription = null)
-            },
-            modifier = Modifier.clickable { onReset() }
-        )
-        // Mode Gelap dan Tentang Kasir tetap baris di bawahnya.
-        Column(
-            modifier = Modifier.padding(top = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(10.dp)
+        // L2: empat peralatan jadi baris di dalam satu kartu grup.
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp)
         ) {
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                ShortcutTile(
-                    icon = Icons.Default.Tv,
-                    label = "Atur Unit & Tarif",
-                    sub = units.size.toString() + " unit",
-                    modifier = Modifier.weight(1f),
-                    onClick = onOpenUnitManage
+            Column {
+                ListItem(
+                    headlineContent = { Text("Atur Unit & Tarif") },
+                    supportingContent = { Text(units.size.toString() + " unit") },
+                    leadingContent = { Icon(Icons.Default.Tv, contentDescription = null) },
+                    trailingContent = {
+                        Icon(Icons.Default.ChevronRight, contentDescription = null)
+                    },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    modifier = Modifier.clickable { onOpenUnitManage() }
                 )
-                ShortcutTile(
-                    icon = Icons.Default.Backup,
-                    label = "Backup Data",
-                    sub = "JSON + sandi",
-                    modifier = Modifier.weight(1f),
-                    onClick = { showBackupDialog = true }
+                HorizontalDivider(modifier = Modifier.padding(start = 52.dp))
+                ListItem(
+                    headlineContent = { Text("Backup Data") },
+                    supportingContent = { Text("JSON + sandi") },
+                    leadingContent = { Icon(Icons.Default.Backup, contentDescription = null) },
+                    trailingContent = {
+                        Icon(Icons.Default.ChevronRight, contentDescription = null)
+                    },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    modifier = Modifier.clickable { showBackupDialog = true }
                 )
-            }
-            Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                ShortcutTile(
-                    icon = Icons.Default.SettingsBackupRestore,
-                    label = "Restore Data",
-                    sub = "dari berkas",
-                    modifier = Modifier.weight(1f),
-                    onClick = {
+                HorizontalDivider(modifier = Modifier.padding(start = 52.dp))
+                ListItem(
+                    headlineContent = { Text("Restore Data") },
+                    supportingContent = { Text("dari berkas") },
+                    leadingContent = {
+                        Icon(Icons.Default.SettingsBackupRestore, contentDescription = null)
+                    },
+                    trailingContent = {
+                        Icon(Icons.Default.ChevronRight, contentDescription = null)
+                    },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    modifier = Modifier.clickable {
                         restoreLauncher.launch(arrayOf("application/json"))
                     }
                 )
-                ShortcutTile(
-                    icon = Icons.Default.Notifications,
-                    label = "Tes Notifikasi",
-                    sub = "Kirim contoh",
-                    modifier = Modifier.weight(1f),
-                    onClick = {
+                HorizontalDivider(modifier = Modifier.padding(start = 52.dp))
+                ListItem(
+                    headlineContent = { Text("Tes Notifikasi") },
+                    supportingContent = { Text("Kirim contoh") },
+                    leadingContent = {
+                        Icon(Icons.Default.Notifications, contentDescription = null)
+                    },
+                    trailingContent = {
+                        Icon(Icons.Default.ChevronRight, contentDescription = null)
+                    },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    modifier = Modifier.clickable {
                         postTestSessionNotification(context)
-                        notify(
-                            "Tes notifikasi terkirim - cek panel notifikasi"
-                        )
+                        notify("Tes notifikasi terkirim - cek panel notifikasi")
                     }
                 )
             }
         }
-        Column(modifier = Modifier.padding(top = 8.dp)) {
-            ListItem(
-                headlineContent = { Text("Mode Gelap") },
-                leadingContent = {
-                    Icon(
-                        Icons.Default.DarkMode,
-                        contentDescription = null,
-                        tint = MaterialTheme.colorScheme.primary
+        // L2: kartu grup akun & tampilan - Sinkronisasi, Keluar Akun
+        // (bila masuk), Mode Gelap, lalu Reset Semua Data paling bawah.
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp)
+        ) {
+            Column {
+                ListItem(
+                    headlineContent = { Text("Sinkronisasi") },
+                    supportingContent = {
+                        Text(
+                            when (statusSync) {
+                                StatusSync.PROSES -> "Sedang menyinkronkan..."
+                                StatusSync.BERHASIL -> "Tersinkron"
+                                StatusSync.GAGAL -> "Gagal - ketuk untuk mencoba lagi"
+                                StatusSync.BELUM_MASUK -> "Masuk untuk menyalakan"
+                                StatusSync.NONAKTIF -> "Belum dikonfigurasi"
+                            }
+                        )
+                    },
+                    leadingContent = { Icon(Icons.Default.CloudSync, contentDescription = null) },
+                    trailingContent = {
+                        if (statusSync == StatusSync.PROSES) {
+                            CircularProgressIndicator(
+                                strokeWidth = 2.dp,
+                                modifier = Modifier.size(20.dp)
+                            )
+                        } else {
+                            Icon(Icons.Default.ChevronRight, contentDescription = null)
+                        }
+                    },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    modifier = Modifier.clickable { onSyncTap() }
+                )
+                if (emailOnline != null) {
+                    HorizontalDivider(modifier = Modifier.padding(start = 52.dp))
+                    ListItem(
+                        headlineContent = { Text("Keluar Akun") },
+                        supportingContent = { Text(emailOnline) },
+                        leadingContent = {
+                            Icon(
+                                Icons.Default.Logout,
+                                contentDescription = null,
+                                tint = MaterialTheme.colorScheme.error
+                            )
+                        },
+                        trailingContent = {
+                            Icon(Icons.Default.ChevronRight, contentDescription = null)
+                        },
+                        colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                        modifier = Modifier.clickable { onKeluar() }
                     )
-                },
-                trailingContent = {
-                    Switch(checked = dark, onCheckedChange = onDarkChange)
                 }
-            )
-            HorizontalDivider(modifier = Modifier.padding(start = 52.dp))
+                HorizontalDivider(modifier = Modifier.padding(start = 52.dp))
+                ListItem(
+                    headlineContent = { Text("Mode Gelap") },
+                    leadingContent = {
+                        Icon(
+                            Icons.Default.DarkMode,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    },
+                    trailingContent = {
+                        Switch(checked = dark, onCheckedChange = onDarkChange)
+                    },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent)
+                )
+                HorizontalDivider(modifier = Modifier.padding(start = 52.dp))
+                ListItem(
+                    headlineContent = {
+                        Text("Reset Semua Data", color = MaterialTheme.colorScheme.error)
+                    },
+                    leadingContent = {
+                        Icon(
+                            Icons.Default.DeleteForever,
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.error
+                        )
+                    },
+                    trailingContent = {
+                        Icon(Icons.Default.ChevronRight, contentDescription = null)
+                    },
+                    colors = ListItemDefaults.colors(containerColor = Color.Transparent),
+                    modifier = Modifier.clickable { onReset() }
+                )
+            }
+        }
+        // Tentang tetap kartu sendiri, seperti pola L1 di Apotek.
+        Card(
+            colors = CardDefaults.cardColors(
+                containerColor = MaterialTheme.colorScheme.surfaceContainer
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(top = 12.dp)
+        ) {
             ListItem(
                 headlineContent = { Text("Tentang Kasir") },
                 leadingContent = {
@@ -2772,6 +2839,7 @@ fun LainnyaTab(
                         Icon(Icons.Default.ChevronRight, contentDescription = null)
                     }
                 },
+                colors = ListItemDefaults.colors(containerColor = Color.Transparent),
                 modifier = Modifier.clickable { showAbout = true }
             )
         }
