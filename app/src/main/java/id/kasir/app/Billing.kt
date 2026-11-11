@@ -5,6 +5,10 @@ import id.kasir.app.data.SessionEntity
 import id.kasir.app.data.SnackSaleEntity
 import id.kasir.app.data.SnackEntity
 import id.kasir.app.data.UnitEntity
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.input.OffsetMapping
+import androidx.compose.ui.text.input.TransformedText
+import androidx.compose.ui.text.input.VisualTransformation
 import java.text.NumberFormat
 import java.text.SimpleDateFormat
 import java.util.Calendar
@@ -62,6 +66,44 @@ fun groupThousands(digits: String): String {
         i += 3
     }
     return sb.toString()
+}
+
+// Pemetaan posisi kursor antara teks digit mentah dan tampilannya
+// yang berkelompok ribuan ("5000" -> "5.000"), dipakai
+// PemisahRibuanVisual supaya kursor tidak melompat saat nominal
+// disunting di tengah angka.
+fun offsetKeTampil(mentah: String, offset: Int): Int {
+    val tampil = groupThousands(mentah)
+    var digit = 0
+    var i = 0
+    while (i < tampil.length && digit < offset) {
+        if (tampil[i].isDigit()) digit++
+        i++
+    }
+    return i
+}
+
+fun offsetKeMentah(mentah: String, offsetTampil: Int): Int {
+    val tampil = groupThousands(mentah)
+    return tampil.take(offsetTampil).count { c -> c.isDigit() }
+}
+
+// Pemisah ribuan sebagai lapisan visual saja: teks yang disimpan
+// tetap digit mentah, sehingga menyunting di tengah angka menjaga
+// posisi kursor (memperbaiki pola lama value = groupThousands(...)
+// yang menggeser kursor setiap kali pemisah muncul/hilang).
+class PemisahRibuanVisual : VisualTransformation {
+    override fun filter(text: AnnotatedString): TransformedText {
+        val mentah = text.text
+        val mapping = object : OffsetMapping {
+            override fun originalToTransformed(offset: Int): Int =
+                offsetKeTampil(mentah, offset)
+
+            override fun transformedToOriginal(offset: Int): Int =
+                offsetKeMentah(mentah, offset)
+        }
+        return TransformedText(AnnotatedString(groupThousands(mentah)), mapping)
+    }
 }
 
 // Format ringkas untuk label grafik: 96000 -> "96 rb", 1500000 -> "1,5 jt".

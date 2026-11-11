@@ -309,4 +309,28 @@ class BillingTest {
         assertEquals(5_000L, buckets[10])
         assertEquals(72_000L, buckets.sum())
     }
+
+    @Test
+    fun offsetMapping_ribuan() {
+        // "5000" tampil "5.000": kursor sesudah digit ke-n.
+        assertEquals(0, offsetKeTampil("5000", 0))
+        assertEquals(1, offsetKeTampil("5000", 1))
+        assertEquals(3, offsetKeTampil("5000", 2))
+        assertEquals(5, offsetKeTampil("5000", 4))
+        // Balikannya: posisi tampil -> jumlah digit mentah sebelumnya.
+        assertEquals(0, offsetKeMentah("5000", 0))
+        assertEquals(1, offsetKeMentah("5000", 1))
+        assertEquals(1, offsetKeMentah("5000", 2))
+        assertEquals(2, offsetKeMentah("5000", 3))
+        assertEquals(4, offsetKeMentah("5000", 5))
+        // Angka besar "1234567" -> "1.234.567" (panjang 9).
+        assertEquals(9, offsetKeTampil("1234567", 7))
+        assertEquals(7, offsetKeMentah("1234567", 9))
+        // Tanpa pemisah, pemetaan identitas.
+        assertEquals(2, offsetKeTampil("500", 2))
+        assertEquals(2, offsetKeMentah("500", 2))
+        // Kosong aman.
+        assertEquals(0, offsetKeTampil("", 0))
+        assertEquals(0, offsetKeMentah("", 0))
+    }
 }

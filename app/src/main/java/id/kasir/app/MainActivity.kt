@@ -118,7 +118,9 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -1870,8 +1872,8 @@ private fun SessionDetailDialog(
     var confirmVoid by remember { mutableStateOf(false) }
     var tab by remember { mutableIntStateOf(0) }
     var addMinutes by remember { mutableIntStateOf(60) }
-    var addPriceText by remember { mutableStateOf("") }
-    val addPrice = addPriceText.toLongOrNull() ?: 0L
+    var addPriceField by remember { mutableStateOf(TextFieldValue("")) }
+    val addPrice = addPriceField.text.toLongOrNull() ?: 0L
     // The dialog owns its clock (small subtree); the tab behind it stays idle.
     val now by rememberNowMillis()
     val snackTotal = sessionSnacks.sumOf { it.price * it.qty }
@@ -2263,11 +2265,12 @@ private fun SessionDetailDialog(
                             // Template durasi + nominal manual: harga paket
                             // bertambah sebesar yang diketik, tidak dihitung
                             // dari tarif per jam.
-                            Row(
+                            FlowRow(
                                 horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
                                 modifier = Modifier.padding(top = 8.dp)
                             ) {
-                                listOf(30, 60, 120).forEach { add ->
+                                listOf(30, 60, 120, 180).forEach { add ->
                                     FilterChip(
                                         selected = addMinutes == add,
                                         onClick = { addMinutes = add },
@@ -2276,10 +2279,41 @@ private fun SessionDetailDialog(
                                 }
                             }
                             OutlinedTextField(
-                                value = groupThousands(addPriceText),
+                                value = addPriceField,
                                 onValueChange = { v ->
-                                    addPriceText = v.filter { c -> c.isDigit() }
+                                    // Simpan digit mentah saja (pemisah
+                                    // ribuan digambar PemisahRibuanVisual);
+                                    // posisi kursor dihitung ulang dari
+                                    // jumlah digit sebelum kursor, nol di
+                                    // depan dibuang seperti groupThousands.
+                                    val digits = v.text.filter { c -> c.isDigit() }
+                                    val nolDepan = digits.takeWhile { c -> c == '0' }.length
+                                    val sisaNol = if (digits.isNotEmpty() &&
+                                        digits.trimStart('0').isEmpty()
+                                    ) {
+                                        1
+                                    } else {
+                                        0
+                                    }
+                                    val dibuang = nolDepan - sisaNol
+                                    val normal = digits.trimStart('0').ifEmpty {
+                                        if (digits.isEmpty()) "" else "0"
+                                    }
+                                    fun posisiMentah(pos: Int): Int {
+                                        val digitSebelum = v.text.take(pos)
+                                            .count { c -> c.isDigit() }
+                                        return (digitSebelum - dibuang)
+                                            .coerceIn(0, normal.length)
+                                    }
+                                    addPriceField = TextFieldValue(
+                                        text = normal,
+                                        selection = TextRange(
+                                            posisiMentah(v.selection.start),
+                                            posisiMentah(v.selection.end)
+                                        )
+                                    )
                                 },
+                                visualTransformation = PemisahRibuanVisual(),
                                 label = { Text("Harga tambahan (Rp)") },
                                 placeholder = { Text("Tulis nominalnya") },
                                 keyboardOptions = KeyboardOptions(
@@ -2313,7 +2347,7 @@ private fun SessionDetailDialog(
                                                 formatRupiah(base + addPrice)
                                         )
                                     }
-                                    addPriceText = ""
+                                    addPriceField = TextFieldValue("")
                                 },
                                 modifier = Modifier
                                     .fillMaxWidth()
