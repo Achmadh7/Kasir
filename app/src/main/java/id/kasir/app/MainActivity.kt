@@ -118,7 +118,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
@@ -1407,7 +1406,7 @@ private fun ReservationDialog(
     var hour by remember { mutableIntStateOf(nextHour.hour) }
     var minute by remember { mutableIntStateOf(0) }
     var duration by remember { mutableIntStateOf(120) }
-    var priceText by remember { mutableStateOf("") }
+    var priceText by remember { mutableStateOf(TextFieldValue("")) }
     var showDatePicker by remember { mutableStateOf(false) }
     var showTimePicker by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
@@ -1531,10 +1530,11 @@ private fun ReservationDialog(
                         }
                     }
                     OutlinedTextField(
-                        value = groupThousands(priceText),
+                        value = priceText,
                         onValueChange = { v ->
-                            priceText = v.filter { c -> c.isDigit() }
+                            priceText = normalisasiNominal(v)
                         },
+                        visualTransformation = PemisahRibuanVisual(),
                         label = { Text("Harga paket (Rp, boleh kosong)") },
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Number
@@ -1558,7 +1558,7 @@ private fun ReservationDialog(
                                         customerName = name.trim(),
                                         startEpoch = startEpoch,
                                         durationMinutes = duration,
-                                        price = priceText.toLongOrNull() ?: 0L
+                                        price = priceText.text.toLongOrNull() ?: 0L
                                     )
                                 .baruSync())
                                 onSaved()
@@ -1641,10 +1641,12 @@ private fun StartSessionDialog(
         )
     }
     var priceText by remember {
-        mutableStateOf(if (initialPrice > 0) initialPrice.toString() else "")
+        mutableStateOf(
+            TextFieldValue(if (initialPrice > 0) initialPrice.toString() else "")
+        )
     }
     val scope = rememberCoroutineScope()
-    val price = priceText.toLongOrNull() ?: 0L
+    val price = priceText.text.toLongOrNull() ?: 0L
     // P2: mulai sesi adalah halaman penuh, bukan dialog - ruang
     // lebih lega dan tombol Mulai Sesi menempel di bawah layar.
     Dialog(
@@ -1810,8 +1812,9 @@ private fun StartSessionDialog(
                             .padding(top = 10.dp)
                     )
                     OutlinedTextField(
-                        value = groupThousands(priceText),
-                        onValueChange = { v -> priceText = v.filter { c -> c.isDigit() } },
+                        value = priceText,
+                        onValueChange = { v -> priceText = normalisasiNominal(v) },
+                        visualTransformation = PemisahRibuanVisual(),
                         label = { Text("Harga paket (Rp)") },
                         placeholder = { Text("mis. 10000") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -2281,37 +2284,7 @@ private fun SessionDetailDialog(
                             OutlinedTextField(
                                 value = addPriceField,
                                 onValueChange = { v ->
-                                    // Simpan digit mentah saja (pemisah
-                                    // ribuan digambar PemisahRibuanVisual);
-                                    // posisi kursor dihitung ulang dari
-                                    // jumlah digit sebelum kursor, nol di
-                                    // depan dibuang seperti groupThousands.
-                                    val digits = v.text.filter { c -> c.isDigit() }
-                                    val nolDepan = digits.takeWhile { c -> c == '0' }.length
-                                    val sisaNol = if (digits.isNotEmpty() &&
-                                        digits.trimStart('0').isEmpty()
-                                    ) {
-                                        1
-                                    } else {
-                                        0
-                                    }
-                                    val dibuang = nolDepan - sisaNol
-                                    val normal = digits.trimStart('0').ifEmpty {
-                                        if (digits.isEmpty()) "" else "0"
-                                    }
-                                    fun posisiMentah(pos: Int): Int {
-                                        val digitSebelum = v.text.take(pos)
-                                            .count { c -> c.isDigit() }
-                                        return (digitSebelum - dibuang)
-                                            .coerceIn(0, normal.length)
-                                    }
-                                    addPriceField = TextFieldValue(
-                                        text = normal,
-                                        selection = TextRange(
-                                            posisiMentah(v.selection.start),
-                                            posisiMentah(v.selection.end)
-                                        )
-                                    )
+                                    addPriceField = normalisasiNominal(v)
                                 },
                                 visualTransformation = PemisahRibuanVisual(),
                                 label = { Text("Harga tambahan (Rp)") },
@@ -2435,7 +2408,7 @@ private fun CheckoutDialog(
 ) {
     val scope = rememberCoroutineScope()
     var method by remember { mutableStateOf(PAY_TUNAI) }
-    var paidText by remember { mutableStateOf("") }
+    var paidText by remember { mutableStateOf(TextFieldValue("")) }
     // Frozen at open: the bill must not tick up while payment is being taken.
     val now = remember { System.currentTimeMillis() }
 
@@ -2443,7 +2416,7 @@ private fun CheckoutDialog(
     val rentalGross = rentalCost(session, now)
     val snackTotal = sessionSnacks.sumOf { it.price * it.qty }
     val total = rentalGross + snackTotal
-    val paid = paidText.toLongOrNull() ?: 0L
+    val paid = paidText.text.toLongOrNull() ?: 0L
     val canPay = method == PAY_QRIS || paid >= total
 
     // PB1: total pindah ke pita navy besar di atas dialog; metode
@@ -2538,8 +2511,9 @@ private fun CheckoutDialog(
                 }
                 if (method == PAY_TUNAI) {
                     OutlinedTextField(
-                        value = groupThousands(paidText),
-                        onValueChange = { v -> paidText = v.filter { it.isDigit() } },
+                        value = paidText,
+                        onValueChange = { v -> paidText = normalisasiNominal(v) },
+                        visualTransformation = PemisahRibuanVisual(),
                         label = { Text("Uang diterima") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
@@ -2553,21 +2527,21 @@ private fun CheckoutDialog(
                     ) {
                         FilterChip(
                             selected = false,
-                            onClick = { paidText = total.toString() },
+                            onClick = { paidText = TextFieldValue(total.toString()) },
                             label = { Text("Uang Pas") }
                         )
                         FilterChip(
                             selected = false,
-                            onClick = { paidText = "50000" },
+                            onClick = { paidText = TextFieldValue("50000") },
                             label = { Text("50 rb") }
                         )
                         FilterChip(
                             selected = false,
-                            onClick = { paidText = "100000" },
+                            onClick = { paidText = TextFieldValue("100000") },
                             label = { Text("100 rb") }
                         )
                     }
-                    if (paidText.isNotEmpty()) {
+                    if (paidText.text.isNotEmpty()) {
                         Text(
                             if (paid >= total) {
                                 "Kembalian: " + formatRupiah(paid - total)

@@ -8,6 +8,8 @@ import id.kasir.app.data.UnitEntity
 import java.util.Calendar
 import org.junit.Assert.assertEquals
 import org.junit.Test
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 
 // Unit test untuk logika billing murni di Billing.kt (tanpa Android / database).
 class BillingTest {
@@ -332,5 +334,29 @@ class BillingTest {
         // Kosong aman.
         assertEquals(0, offsetKeTampil("", 0))
         assertEquals(0, offsetKeMentah("", 0))
+    }
+
+    @Test
+    fun normalisasiNominal_digitMentahDanKursor() {
+        // Ketik normal di akhir: teks tetap digit mentah, kursor di akhir.
+        val v1 = normalisasiNominal(TextFieldValue("55000", TextRange(5)))
+        assertEquals("55000", v1.text)
+        assertEquals(5, v1.selection.start)
+        // Karakter desimal dari papan ketik dibuang, kursor menyesuaikan.
+        val v2 = normalisasiNominal(TextFieldValue("55.000", TextRange(3)))
+        assertEquals("55000", v2.text)
+        assertEquals(2, v2.selection.start)
+        // Nol di depan dibuang seperti groupThousands.
+        val v3 = normalisasiNominal(TextFieldValue("007500", TextRange(6)))
+        assertEquals("7500", v3.text)
+        assertEquals(4, v3.selection.start)
+        // Hanya nol: tersisa satu nol, kursor sesudahnya.
+        val v4 = normalisasiNominal(TextFieldValue("0", TextRange(1)))
+        assertEquals("0", v4.text)
+        assertEquals(1, v4.selection.start)
+        // Kosong tetap kosong.
+        val v5 = normalisasiNominal(TextFieldValue("", TextRange(0)))
+        assertEquals("", v5.text)
+        assertEquals(0, v5.selection.start)
     }
 }

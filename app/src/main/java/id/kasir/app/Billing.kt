@@ -6,6 +6,8 @@ import id.kasir.app.data.SnackSaleEntity
 import id.kasir.app.data.SnackEntity
 import id.kasir.app.data.UnitEntity
 import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.OffsetMapping
 import androidx.compose.ui.text.input.TransformedText
 import androidx.compose.ui.text.input.VisualTransformation
@@ -92,6 +94,36 @@ fun offsetKeMentah(mentah: String, offsetTampil: Int): Int {
 // tetap digit mentah, sehingga menyunting di tengah angka menjaga
 // posisi kursor (memperbaiki pola lama value = groupThousands(...)
 // yang menggeser kursor setiap kali pemisah muncul/hilang).
+// Menormalkan satu suntingan kolom nominal menjadi TextFieldValue
+// digit mentah: karakter bukan digit dibuang, nol di depan dibuang
+// seperti groupThousands, dan posisi kursor dihitung ulang dari
+// jumlah digit sebelum kursor. Dipakai semua kolom nominal bersama
+// PemisahRibuanVisual.
+fun normalisasiNominal(v: TextFieldValue): TextFieldValue {
+    val digits = v.text.filter { c -> c.isDigit() }
+    val nolDepan = digits.takeWhile { c -> c == '0' }.length
+    val sisaNol = if (digits.isNotEmpty() && digits.trimStart('0').isEmpty()) {
+        1
+    } else {
+        0
+    }
+    val dibuang = nolDepan - sisaNol
+    val normal = digits.trimStart('0').ifEmpty {
+        if (digits.isEmpty()) "" else "0"
+    }
+    fun posisi(pos: Int): Int {
+        val sebelum = v.text.take(pos).count { c -> c.isDigit() }
+        return (sebelum - dibuang).coerceIn(0, normal.length)
+    }
+    return TextFieldValue(
+        text = normal,
+        selection = TextRange(
+            posisi(v.selection.start),
+            posisi(v.selection.end)
+        )
+    )
+}
+
 class PemisahRibuanVisual : VisualTransformation {
     override fun filter(text: AnnotatedString): TransformedText {
         val mentah = text.text

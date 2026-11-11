@@ -105,6 +105,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -1080,7 +1081,7 @@ private fun BatchSellDialog(
     onDone: () -> Unit
 ) {
     var method by remember { mutableStateOf(PAY_TUNAI) }
-    var paidText by remember { mutableStateOf("") }
+    var paidText by remember { mutableStateOf(TextFieldValue("")) }
     var sold by remember { mutableStateOf<SnackSaleSnapshot?>(null) }
     val scope = rememberCoroutineScope()
     // E2: jumlah tiap item masih bisa diubah di dialog ini; total,
@@ -1093,7 +1094,7 @@ private fun BatchSellDialog(
         if (q > 0) snack to q else null
     }
     val total = liveItems.sumOf { it.first.price * it.second }
-    val paid = paidText.toLongOrNull() ?: 0L
+    val paid = paidText.text.toLongOrNull() ?: 0L
     val canPay = liveItems.isNotEmpty() &&
         (method == PAY_QRIS || paid >= total)
     val soldSnapshot = sold
@@ -1228,8 +1229,9 @@ private fun BatchSellDialog(
                 }
                 if (method == PAY_TUNAI) {
                     OutlinedTextField(
-                        value = groupThousands(paidText),
-                        onValueChange = { v -> paidText = v.filter { it.isDigit() } },
+                        value = paidText,
+                        onValueChange = { v -> paidText = normalisasiNominal(v) },
+                        visualTransformation = PemisahRibuanVisual(),
                         label = { Text("Uang diterima") },
                         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         singleLine = true,
@@ -1243,21 +1245,21 @@ private fun BatchSellDialog(
                     ) {
                         FilterChip(
                             selected = false,
-                            onClick = { paidText = total.toString() },
+                            onClick = { paidText = TextFieldValue(total.toString()) },
                             label = { Text("Uang Pas") }
                         )
                         FilterChip(
                             selected = false,
-                            onClick = { paidText = "50000" },
+                            onClick = { paidText = TextFieldValue("50000") },
                             label = { Text("50 rb") }
                         )
                         FilterChip(
                             selected = false,
-                            onClick = { paidText = "100000" },
+                            onClick = { paidText = TextFieldValue("100000") },
                             label = { Text("100 rb") }
                         )
                     }
-                    if (paidText.isNotEmpty()) {
+                    if (paidText.text.isNotEmpty()) {
                         Text(
                             if (paid >= total) {
                                 "Kembalian: " + formatRupiah(paid - total)
@@ -1321,11 +1323,13 @@ private fun SnackFormDialog(
     onDismiss: () -> Unit
 ) {
     var name by remember { mutableStateOf(initial?.name ?: "") }
-    var priceText by remember { mutableStateOf(initial?.price?.toString() ?: "") }
+    var priceText by remember {
+        mutableStateOf(TextFieldValue(initial?.price?.toString() ?: ""))
+    }
     var stockText by remember { mutableStateOf(initial?.stock?.toString() ?: "") }
     var confirmDelete by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val price = priceText.toLongOrNull() ?: 0L
+    val price = priceText.text.toLongOrNull() ?: 0L
     val stock = stockText.toIntOrNull() ?: 0
     AlertDialog(
         onDismissRequest = onDismiss,
@@ -1362,8 +1366,9 @@ private fun SnackFormDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
                 TextField(
-                    value = groupThousands(priceText),
-                    onValueChange = { v -> priceText = v.filter { c -> c.isDigit() } },
+                    value = priceText,
+                    onValueChange = { v -> priceText = normalisasiNominal(v) },
+                    visualTransformation = PemisahRibuanVisual(),
                     label = { Text("Harga (Rp)") },
                     leadingIcon = {
                         Box(
@@ -2326,7 +2331,7 @@ private fun ExpenseFormDialog(
 ) {
     var nameText by remember { mutableStateOf(initial?.name ?: "") }
     var amountText by remember {
-        mutableStateOf(initial?.amount?.toString() ?: "")
+        mutableStateOf(TextFieldValue(initial?.amount?.toString() ?: ""))
     }
     var dateMillis by remember {
         mutableStateOf(
@@ -2343,7 +2348,7 @@ private fun ExpenseFormDialog(
     var showDatePicker by remember { mutableStateOf(false) }
     var showDeleteConfirm by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
-    val amount = amountText.toLongOrNull() ?: 0L
+    val amount = amountText.text.toLongOrNull() ?: 0L
     val canSave = nameText.isNotBlank() && amount > 0
     val pickedDate = Instant.ofEpochMilli(dateMillis)
         .atZone(ZoneOffset.UTC)
@@ -2370,10 +2375,11 @@ private fun ExpenseFormDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
                 OutlinedTextField(
-                    value = groupThousands(amountText),
+                    value = amountText,
                     onValueChange = { input ->
-                        amountText = input.filter { it.isDigit() }
+                        amountText = normalisasiNominal(input)
                     },
+                    visualTransformation = PemisahRibuanVisual(),
                     label = { Text("Nominal (Rp)") },
                     singleLine = true,
                     keyboardOptions = KeyboardOptions(
