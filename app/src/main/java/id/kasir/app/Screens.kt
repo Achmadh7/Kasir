@@ -872,14 +872,21 @@ fun JajanTab(dao: KasirDao, notify: (String) -> Unit) {
         }
         LazyColumn(
             modifier = Modifier.weight(1f),
-            contentPadding = PaddingValues(bottom = 16.dp)
+            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, bottom = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(10.dp)
         ) {
             items(snacks, key = { it.id }) { snack ->
                 val qty = minOf(quantities[snack.id] ?: 0, snack.stock)
                 val habis = snack.stock == 0
-                // MK2 Daftar Ramping: tanpa kartu; baris dipisah
-                // garis tipis, petak inisial monokrom biru tema.
-                Column(modifier = Modifier.fillMaxWidth()) {
+                // F2 Kartu Baris: tiap menu satu kartu terpisah tanpa
+                // garis pemisah, stok jadi pil berwarna (ambang sama
+                // dengan peringatan stok menipis), stepper dibungkus pil.
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surfaceContainer
+                    ),
+                    modifier = Modifier.fillMaxWidth()
+                ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
@@ -887,25 +894,25 @@ fun JajanTab(dao: KasirDao, notify: (String) -> Unit) {
                                 editing = snack
                                 showForm = true
                             }
-                            .padding(horizontal = 16.dp, vertical = 10.dp),
+                            .padding(12.dp),
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Box(
                             modifier = Modifier
-                                .size(40.dp)
+                                .size(52.dp)
                                 .background(
                                     if (habis) {
                                         MaterialTheme.colorScheme.surfaceContainerHighest
                                     } else {
                                         MaterialTheme.colorScheme.primaryContainer
                                     },
-                                    RoundedCornerShape(10.dp)
+                                    RoundedCornerShape(14.dp)
                                 ),
                             contentAlignment = Alignment.Center
                         ) {
                             Text(
                                 snack.name.take(1).uppercase(),
-                                style = MaterialTheme.typography.titleSmall,
+                                style = MaterialTheme.typography.titleMedium,
                                 fontWeight = FontWeight.Bold,
                                 color = if (habis) {
                                     MaterialTheme.colorScheme.onSurfaceVariant
@@ -924,40 +931,70 @@ fun JajanTab(dao: KasirDao, notify: (String) -> Unit) {
                                 style = MaterialTheme.typography.titleSmall,
                                 fontWeight = FontWeight.Bold
                             )
-                            Text(
-                                if (habis) {
-                                    formatRupiah(snack.price) + " - Habis"
-                                } else {
-                                    formatRupiah(snack.price) + " - Stok " + snack.stock
-                                },
-                                style = MaterialTheme.typography.bodySmall,
-                                color = MaterialTheme.colorScheme.onSurfaceVariant
-                            )
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier.padding(top = 4.dp)
+                            ) {
+                                Text(
+                                    formatRupiah(snack.price),
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                                )
+                                Surface(
+                                    color = when {
+                                        habis -> MaterialTheme.colorScheme.errorContainer
+                                        snack.stock <= LOW_STOCK_THRESHOLD ->
+                                            MaterialTheme.colorScheme.tertiaryContainer
+                                        else -> Color(0xFF2F9E44).copy(alpha = 0.14f)
+                                    },
+                                    shape = RoundedCornerShape(50),
+                                    modifier = Modifier.padding(start = 8.dp)
+                                ) {
+                                    Text(
+                                        if (habis) "Habis" else "Stok " + snack.stock,
+                                        style = MaterialTheme.typography.labelSmall,
+                                        fontWeight = FontWeight.Bold,
+                                        color = when {
+                                            habis -> MaterialTheme.colorScheme.onErrorContainer
+                                            snack.stock <= LOW_STOCK_THRESHOLD ->
+                                                MaterialTheme.colorScheme.onTertiaryContainer
+                                            else -> Color(0xFF2F9E44)
+                                        },
+                                        modifier = Modifier.padding(
+                                            horizontal = 8.dp,
+                                            vertical = 3.dp
+                                        )
+                                    )
+                                }
+                            }
                         }
-                        IconButton(
-                            enabled = qty > 0,
-                            onClick = { setQty(snack, qty - 1) },
-                            modifier = Modifier.size(36.dp)
-                        ) { Icon(Icons.Default.Remove, contentDescription = null) }
-                        Box(
-                            modifier = Modifier.width(28.dp),
-                            contentAlignment = Alignment.Center
+                        Surface(
+                            color = MaterialTheme.colorScheme.surfaceContainerHigh,
+                            shape = RoundedCornerShape(50)
                         ) {
-                            Text(
-                                qty.toString(),
-                                style = MaterialTheme.typography.titleMedium
-                            )
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                IconButton(
+                                    enabled = qty > 0,
+                                    onClick = { setQty(snack, qty - 1) },
+                                    modifier = Modifier.size(32.dp)
+                                ) { Icon(Icons.Default.Remove, contentDescription = null) }
+                                Box(
+                                    modifier = Modifier.width(24.dp),
+                                    contentAlignment = Alignment.Center
+                                ) {
+                                    Text(
+                                        qty.toString(),
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                                }
+                                IconButton(
+                                    enabled = qty < snack.stock,
+                                    onClick = { setQty(snack, qty + 1) },
+                                    modifier = Modifier.size(32.dp)
+                                ) { Icon(Icons.Default.Add, contentDescription = null) }
+                            }
                         }
-                        IconButton(
-                            enabled = qty < snack.stock,
-                            onClick = { setQty(snack, qty + 1) },
-                            modifier = Modifier.size(36.dp)
-                        ) { Icon(Icons.Default.Add, contentDescription = null) }
                     }
-                    HorizontalDivider(
-                        modifier = Modifier.padding(horizontal = 16.dp),
-                        color = MaterialTheme.colorScheme.surfaceContainerHigh
-                    )
                 }
             }
         }
