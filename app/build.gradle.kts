@@ -42,9 +42,9 @@ android {
     signingConfigs {
         create("ci") {
             storeFile = rootProject.file("kasir.p12")
-            storePassword = "kasir"
+            storePassword = "KasirPS2026!"
             keyAlias = "kasir"
-            keyPassword = "kasir"
+            keyPassword = "KasirPS2026!"
             storeType = "PKCS12"
         }
     }

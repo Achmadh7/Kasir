@@ -96,6 +96,14 @@
           }
         },
         {
+          "client_id": "49722118171-4odsqg6vjjccth8f8rjdroj7amr2slui.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "id.kasir.app",
+            "certificate_hash": "a8dc641545027b99e0fd6da069295f5d57329daa"
+          }
+        },
+        {
           "client_id": "49722118171-mrgnr9s1u46sq0uip8hfip44ncq90sq0.apps.googleusercontent.com",
           "client_type": 3
         }
