@@ -267,6 +267,10 @@ private fun KasirApp(
     }
     var syncTerakhir by remember { mutableLongStateOf(prefs.getLong("online_sync_terakhir", 0L)) }
     var sibukOnline by remember { mutableStateOf(false) }
+    // True hanya bila masuk Google-nya terjadi di sesi proses ini
+    // (lewat gerbang), bukan sesi lama yang tersimpan saat app
+    // dibuka - membedakan notifikasi sinkron saat buka app.
+    var baruSajaMasuk by remember { mutableStateOf(false) }
     var pesanOnline by remember { mutableStateOf<String?>(null) }
     var tampilKonfirmasiKeluar by remember { mutableStateOf(false) }
     var tampilKonfirmasiReset by remember { mutableStateOf(false) }
@@ -312,6 +316,7 @@ private fun KasirApp(
             pesanOnline = null
             try {
                 emailOnline = FirebaseKit.masukDenganGoogle(context)
+                baruSajaMasuk = true
                 lewatiLogin = false
             } catch (e: Exception) {
                 pesanOnline = e.message ?: "Gagal masuk dengan Google"
@@ -332,7 +337,13 @@ private fun KasirApp(
                 prefs.edit().putString("online_email_terakhir", emailOnline).apply()
             }
             jadwalkanSyncBerkala(context)
-            jalankanSync()
+            // Notifikasi "Sinkronisasi selesai" hanya untuk masuk yang
+            // benar-benar baru (lewat gerbang) dan ketukan manual. Buka
+            // app dengan sesi tersimpan = sinkron senyap, supaya tulisan
+            // itu tidak muncul di setiap app dibuka.
+            val bersuara = baruSajaMasuk
+            baruSajaMasuk = false
+            jalankanSync(senyap = !bersuara)
         } else if (onlineSiap) {
             statusSync = StatusSync.BELUM_MASUK
         }
