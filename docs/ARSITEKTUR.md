@@ -31,7 +31,7 @@ This document summarizes the technical decisions behind Kasir (a PlayStation ren
 | `SessionAlarm.kt` | AlarmManager scheduling (session warning/end, reservation reminders), the notification receivers incl. snooze, and the boot rescheduler |
 | `Theme.kt` | The W2 steel-blue light/dark colour schemes for `MaterialExpressiveTheme` |
 | `data/Models.kt` | The seven Room entities |
-| `data/AppDatabase.kt` | `KasirDao`, `AppDatabase`, `DatabaseProvider` (singleton), `SeedData` |
+| `data/AppDatabase.kt` | `KasirDao`, `AppDatabase`, `DatabaseProvider` (singleton) |
 
 ## Data model (Room, version 4)
 

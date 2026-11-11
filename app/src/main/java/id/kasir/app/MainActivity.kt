@@ -128,7 +128,6 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.ZoneOffset
 import id.kasir.app.data.KasirDao
-import id.kasir.app.data.SeedData
 import id.kasir.app.data.SessionEntity
 import id.kasir.app.data.SessionSnackEntity
 import id.kasir.app.data.UnitEntity
@@ -392,14 +391,12 @@ private fun KasirApp(
             }
             prefs.edit().remove("online_sync_terakhir").apply()
             syncTerakhir = 0
-            SeedData.ensure(dao)
             sibukReset = false
             tampilKonfirmasiReset = false
             notify("Semua data sudah dihapus. Aplikasi kembali ke keadaan awal.")
         }
     }
 
-    LaunchedEffect(Unit) { SeedData.ensure(dao) }
 
     KasirTheme(darkTheme = dark) {
         if (tampilKonfirmasiKeluar) {

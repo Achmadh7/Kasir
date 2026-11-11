@@ -14,7 +14,6 @@ Lid/kasir/app/data/AppDatabase_Impl;
 Lid/kasir/app/data/KasirDao;
 Lid/kasir/app/data/KasirDao_Impl;
 Lid/kasir/app/data/DatabaseProvider;
-Lid/kasir/app/data/SeedData;
 Lid/kasir/app/data/UnitEntity;
 Lid/kasir/app/data/SnackEntity;
 Lid/kasir/app/data/SessionEntity;
