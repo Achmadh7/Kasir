@@ -30,6 +30,8 @@ jobs:
         run: gradle assembleDebug --stacktrace
       - name: Build release APK
         run: gradle assembleRelease --stacktrace
+      - name: Rename release APK
+        run: mv app/build/outputs/apk/release/app-release.apk app/build/outputs/apk/release/Kasir-Playstation-Release.apk
       - name: Upload APK artifact
         uses: actions/upload-artifact@v7
         with:
