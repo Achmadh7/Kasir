@@ -2647,21 +2647,15 @@ fun LainnyaTab(
             .verticalScroll(rememberScrollState())
             .padding(16.dp)
     ) {
-        // L2: identitas profil di tengah - cakram navy tetap dengan
-        // lingkaran putih berikon gamepad, nama aplikasi, baris nama
-        // toko dengan tombol ubah kecil, lalu pil versi.
+        // L2: identitas profil di tengah - logo aplikasi berdiri
+        // sendiri tanpa cakram di belakangnya (permintaan pemilik
+        // 2026-11-11), nama aplikasi, baris nama toko dengan tombol
+        // ubah kecil, lalu pil versi.
         Column(
             modifier = Modifier.fillMaxWidth(),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Box(
-                modifier = Modifier
-                    .size(104.dp)
-                    .background(Color(0xFF1B3A5C), CircleShape),
-                contentAlignment = Alignment.Center
-            ) {
-                LogoKasirBaru(Modifier.size(76.dp))
-            }
+            LogoKasirBaru(Modifier.size(76.dp))
             Text(
                 "Kasir",
                 style = MaterialTheme.typography.headlineSmall,
