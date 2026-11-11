@@ -33,7 +33,7 @@ On first launch the app is seeded with sample data (6 TV units and 6 snack menu 
 | Build | AGP 9.1.1, Gradle 9.3.1, JDK 17 |
 | Android | minSdk 26 (Android 8.0), targetSdk 36, compileSdk 37 |
 | Package | `id.kasir.app` |
-| Version | 1.0.0 |
+| Version | 1.1.0 |
 | Signing | The keystore lives in a GitHub Actions secret (`KASIR_KEYSTORE_BASE64`) and is restored to `kasir.p12` at the start of every CI build — every build uses the same signature, so updates install over older versions |
 | R8 | Minify + resource shrinking enabled for both debug and release builds |
 

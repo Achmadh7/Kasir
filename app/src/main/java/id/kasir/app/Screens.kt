@@ -2642,7 +2642,7 @@ fun LainnyaTab(
                 modifier = Modifier.padding(top = 8.dp)
             ) {
                 Text(
-                    "Versi 1.0.0",
+                    "Versi 1.1.0",
                     style = MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.primary,
                     modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp)
@@ -2869,7 +2869,7 @@ fun LainnyaTab(
                 trailingContent = {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Text(
-                            "Versi 1.0.0",
+                            "Versi 1.1.0",
                             style = MaterialTheme.typography.bodyMedium,
                             color = MaterialTheme.colorScheme.onSurfaceVariant
                         )
@@ -2945,7 +2945,7 @@ fun LainnyaTab(
                                 color = Color.White
                             )
                             Text(
-                                storeName + " - versi 1.0.0",
+                                storeName + " - versi 1.1.0",
                                 style = MaterialTheme.typography.bodySmall,
                                 color = Color(0xFFA9C4DE)
                             )

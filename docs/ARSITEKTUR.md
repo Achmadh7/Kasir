@@ -19,7 +19,7 @@ This document summarizes the technical decisions behind Kasir (a PlayStation ren
 | AGP / Gradle | 9.1.1 / 9.3.1 (JDK 17) |
 | Room | 2.7.2 via KSP 2.3.9 |
 | Android | minSdk 26, targetSdk 36, compileSdk 37 |
-| Package | `id.kasir.app`, version 1.0.0 (code 1) |
+| Package | `id.kasir.app`, version 1.1.0 (code 2) |
 
 ## Code structure
 
