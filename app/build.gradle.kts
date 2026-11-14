@@ -110,7 +110,7 @@ dependencies {
 
     testImplementation("junit:junit:4.13.2")
     // org.json asli untuk tes unit BackupHelper (di perangkat, org.json bawaan Android).
-    testImplementation("org.json:json:20240303")
+    testImplementation("org.json:json:20260814")
 
     // Mode Online (Firebase) - pola yang sama seperti KasBulanan:
     // autentikasi + Firestore untuk cermin awan per akun. Semua
